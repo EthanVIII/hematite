@@ -11,7 +11,7 @@ enum Token {
 enum ParserState {
     Commenting,
     NoneState,
-    Construct{},
+    Construct{i: Instruction},
 }
 
 enum Modifier {
@@ -50,18 +50,42 @@ fn main() {
         \nmulti 1 2"
             .to_string();
     println!("{}",warrior_1);
-    let mut agg_tokens: Vec<Token> = tokeniser(warrior_1);
+    let mut agg_tokens: Vec<Token> = tokenise_input(warrior_1);
 
     println!("{:?}",agg_tokens);
-    let mut state: ParserState = ParserState::NoneState;
-    for token in agg_tokens {
-        if state == ParserState::NoneState {
+    let instructions: Vec<Instruction> = parse_instructions(agg_tokens);
 
-        }
-    }
+    let warrior_2: String =
+        "; This is a comment.\
+        \nmov 2\
+        \ntest 2 ;Test comment 2.\
+        \n;Test comment 3. \
+        \nmulti 1 2"
+            .to_string();
+
 }
 
-fn tokeniser(input: String) -> Vec<Token> {
+fn parse_instructions(input: Vec<Token>) -> Vec<Instruction> {
+    let mut state: ParserState = ParserState::NoneState;
+    let mut instructions: Vec<Instruction> = Vec::new();
+    for token in input {
+        match token {
+            Token::Text {t} => {
+                match state {
+                    ParserState::Commenting => {}
+                    NoneState => {}
+                    ParserState::Construct { .. } => {}
+                }
+            }
+            Token::EOL => {
+                state = ParserState::NoneState;
+            }
+        }
+    }
+    return instructions;
+}
+
+fn tokenise_input(input: String) -> Vec<Token> {
     let input_line: Vec<&str> = input.split("\n").collect();
     let mut agg_tokens: Vec<Token> = Vec::new();
     for line in input_line {
