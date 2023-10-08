@@ -32,6 +32,27 @@ enum OpCode {
     SEQ, SNE, NOP,
 }
 
+struct SyntaxTree {
+    instruction: Option<Instruction>,
+    is_comment: Option<bool>,
+    text: Option<String>,
+    argument_a: Option<String>,
+    argument_b: Option<String>,
+}
+
+impl SyntaxTree {
+    fn new(self: &Self) -> SyntaxTree {
+        return SyntaxTree {
+            instruction: None,
+            is_comment: None,
+            text: None,
+            argument_a: None,
+            argument_b: None,
+        }
+    }
+
+}
+
 struct Instruction {
     opcode: OpCode,
     modifier: Modifier,
@@ -46,6 +67,7 @@ fn main() {
         "; This is a comment.\
         \nmov 1\
         \ntest 2 ;Test comment 2.\
+        \ntest 3 2;Test comment 3.\
         \n;Test comment 3. \
         \nmulti 1 2"
             .to_string();
@@ -65,24 +87,38 @@ fn main() {
 
 }
 
-fn parse_instructions(input: Vec<Token>) -> Vec<Instruction> {
-    let mut state: ParserState = ParserState::NoneState;
+fn parse_instructions(mut input: Vec<Token>) -> Vec<Instruction> {
     let mut instructions: Vec<Instruction> = Vec::new();
+    let mut state: ParserState = ParserState::NoneState;
+    let mut syntax_tree: Vec<SyntaxTree> = Vec::new();
     for token in input {
-        match token {
-            Token::Text {t} => {
-                match state {
-                    ParserState::Commenting => {}
-                    NoneState => {}
-                    ParserState::Construct { .. } => {}
+        if instructions.len() == 0 {
+            state = ParserState::Construct{
+                i: Instruction {
+                    opcode: OpCode::DAT,
+                    modifier: Modifier::A,
+                    a_mode: Mode::IMMEDIATE,
+                    a_number: 0,
+                    b_mode: Mode::IMMEDIATE,
+                    b_number: 0
                 }
             }
-            Token::EOL => {
-                state = ParserState::NoneState;
-            }
+        }
+        else {
+
         }
     }
+
     return instructions;
+}
+
+fn drop_comment(input: String) -> Option<String> {
+    return match input.find(";") {
+        Option::None => {Option::None}
+        Option::Some(t) => {
+            Option::Some(input.get(0..t).unwrap());
+        }
+    }
 }
 
 fn tokenise_input(input: String) -> Vec<Token> {
